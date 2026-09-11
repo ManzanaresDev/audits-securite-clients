@@ -89,3 +89,4 @@ Les vérifications communes aux deux modes sont centralisées dans `scripts/scan
 - Vérifie les en-têtes de sécurité HTTP publics uniquement (pas de test SSL/TLS approfondi type SSL Labs, pas d'audit des formulaires ou des dépendances npm — voir `readme.md` du guide d'audit pour ces vérifications complémentaires).
 - Certains sites bloquent les requêtes automatisées (protection anti-bot) : dans ce cas le rapport indiquera une erreur de connexion plutôt qu'un résultat, et il faudra vérifier manuellement.
 - Un scan de headers ne remplace pas un audit de sécurité complet ; c'est un premier niveau de contrôle, à présenter comme tel à vos clients.
+# audits-securite-clients
