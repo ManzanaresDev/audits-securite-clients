@@ -1,0 +1,34 @@
+name: Scan de sécurité - tous les clients (hebdomadaire)
+
+# Scanne automatiquement tous les sites listés dans clients.json,
+# chaque lundi à 8h (heure de Paris en hiver ; UTC+1/+2 selon la saison).
+on:
+  schedule:
+    - cron: "0 7 * * 1"
+  workflow_dispatch: {}
+
+permissions:
+  contents: write
+
+jobs:
+  scan-all-clients:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Lancer le scan de tous les clients
+        run: node scripts/scan-batch.mjs clients.json
+
+      - name: Commiter les rapports mis à jour
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports/clients/
+          git diff --staged --quiet || git commit -m "Rapports de sécurité hebdomadaires [skip ci]"
+          git push

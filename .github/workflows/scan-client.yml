@@ -1,0 +1,48 @@
+name: Scan de sécurité - un client
+
+# Se lance à la demande depuis l'onglet "Actions" de VOTRE repo (pas celui du client).
+# Il suffit de renseigner l'URL publique du client, aucun accès à son repo/hébergeur n'est nécessaire.
+on:
+  workflow_dispatch:
+    inputs:
+      site_url:
+        description: "URL publique du site du client"
+        required: true
+      client_name:
+        description: "Nom du client (pour le titre et le nom de fichier du rapport)"
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  scan-client:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Récupérer le code
+        uses: actions/checkout@v4
+
+      - name: Installer Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: "20"
+
+      - name: Lancer le scan
+        env:
+          SITE_URL: ${{ inputs.site_url }}
+          CLIENT_NAME: ${{ inputs.client_name }}
+        run: node scripts/scan-client.mjs
+
+      - name: Mettre le rapport à disposition en téléchargement
+        uses: actions/upload-artifact@v4
+        with:
+          name: rapport-securite-client
+          path: reports/clients/*.md
+
+      - name: Commiter le rapport dans l'historique
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+          git add reports/clients/
+          git diff --staged --quiet || git commit -m "Rapport client: ${{ inputs.client_name || inputs.site_url }} [skip ci]"
+          git push
